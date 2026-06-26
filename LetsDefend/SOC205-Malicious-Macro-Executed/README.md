@@ -36,7 +36,7 @@ A security alert indicated that a Microsoft Office document executed a potential
 ## MITRE ATT&CK Mapping
 
 * T1204 - User Execution
-* T1059 - Command and Scripting Interpreter (if applicable)
+* T1059 - Command and Scripting Interpreter 
 
 ## Outcome
 
