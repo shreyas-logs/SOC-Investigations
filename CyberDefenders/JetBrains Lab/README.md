@@ -1,137 +1,207 @@
-JetBrains — Network Forensics Investigation
+# JetBrains — Network Forensics Investigation
 
-Platform: CyberDefenders
-Category: Network Forensics
-Lab Status: Retired
-Primary Tool: Wireshark
-Investigation Type: PCAP / Network Traffic Analysis
+> **Platform:** CyberDefenders
+> **Category:** Network Forensics
+> **Lab Status:** Retired
+> **Primary Tool:** Wireshark
+> **Investigation Type:** PCAP / Network Traffic Analysis
 
-1. Investigation Summary
-Objective
-     The security incident is about an attacker successfully exploited a vulnerability in web server, allowing to upload webshells and gain full control over the system. The attacker utilized the compromised web server as a launch point for further malicious activities, including data manipulation. 
-As part of the investigation, a packet capture (PCAP) file of the network traffic provided and identify the methods used by the attacker. The goal is to determine the initial entry point, the attacker's tools and techniques, and the compromise's extent.
+---
 
-Environment
-Platform: CyberDefenders
-Lab: JetBrains
-Category: Network Forensics
-Tool(s): Wireshark
-Evidence: Network packet capture (PCAP)
-Summary of Findings
-        Based on my investigation, i found out that an attacker exploited the vulnerability to gain full control over the system and used the compromised server to modify the files by      unauthorized way.
+## 1. Investigation Summary
 
-2. Methodology
+### Objective
+
+The security incident involved an attacker successfully exploiting a vulnerability in a web server, allowing the attacker to upload webshells and gain full control over the system. The attacker utilized the compromised web server as a launch point for further malicious activities, including data manipulation.
+
+As part of the investigation, I analyzed a packet capture (PCAP) of the network traffic to identify the methods used by the attacker. The goal was to determine the initial entry point, the attacker's tools and techniques, and the extent of the compromise.
+
+### Environment
+
+* **Platform:** CyberDefenders
+* **Lab:** JetBrains
+* **Category:** Network Forensics
+* **Tool(s):** Wireshark
+* **Evidence:** Network packet capture (PCAP)
+
+### Summary of Findings
+
+Based on my investigation, I found that an attacker exploited the vulnerability to gain full control over the system and used the compromised server to modify files through unauthorized activity.
+
+---
+
+## 2. Methodology
 
 The investigation was performed using the following approach:
 
-2.1 Initial PCAP Analysis
+### 2.1 Initial PCAP Analysis
 
-Loaded the PCAP into Wireshark.
-Reviewed overall packet/protocol distribution.
-Identified relevant network protocols.
-Examined communicating hosts and IP addresses.
+* Loaded the PCAP into Wireshark.
+* Reviewed overall packet/protocol distribution.
+* Identified relevant network protocols.
+* Examined communicating hosts and IP addresses.
 
-2.2 Traffic Filtering
-    http.request.method == POST 
+### 2.2 Traffic Filtering
 
-2.3 HTTP / Network Traffic Analysis
+I used the following Wireshark filter to identify HTTP POST requests:
 
-First of all to find the attackers source IP address i perform traffic filtering 
+```text
+http.request.method == POST
+```
 
-Source IP: 23.158.56.196
-Destination IP:172.31.25.119
-Request: POST   
-Relevant observation: The POST request info was not (application/w-xxx-form-urlencoded) but showing a zip File 
+### 2.3 HTTP / Network Traffic Analysis
 
-2.5 Traffic Correlation
-     I connected multiple packets/events to reach your conclusion
-            After started to investigation the packets i narrow down the search with connecting multiple packets to find evidence related within files and also find out the ZIP file name       
+To identify the attacker's source IP address, I performed traffic filtering.
 
-3. Evidence
+* **Source IP:** `23.158.56.196`
+* **Destination IP:** `172.31.25.119`
+* **Request:** `POST`
+
+**Relevant observation:** The POST request information was not `application/x-www-form-urlencoded`; instead, it showed a ZIP file.
+
+### 2.4 Traffic Correlation
+
+I connected multiple packets and related HTTP requests to narrow down the investigation. By correlating the traffic, I identified evidence related to the files involved and determined the ZIP file name.
+
+---
+
+## 3. Evidence
 
 The following evidence supported the investigation findings.
 
-Evidence 1 — The Suspicious Info about the POST request made by 23.158.56.196 Source IP address
+### Evidence 1 — Suspicious POST Request from 23.158.56.196
 
-Observation:
-         based on the investigation an attacker uploaded the ZIP file via webshell
+**Observation:**
 
-Wireshark filter: 
+Based on the investigation, an attacker uploaded the ZIP file via a webshell.
 
-http.request.method == POST - found supicipus POST request
+**Wireshark filter:**
 
-Relevant details:
+```text
+http.request.method == POST
+```
 
-Source IP: 23.158.56.196
-Destination IP:172.31.25.119
-Request: POST
-Port: 8111
+This filter was used to identify the suspicious POST request.
 
+**Relevant details:**
 
-Evidence 2 —  CVE number corresponds to the vulnerability the attacker exploited
+* **Source IP:** `23.158.56.196`
+* **Destination IP:** `172.31.25.119`
+* **Request:** `POST`
+* **Port:** `8111`
 
-Observation:
+---
 
-I did OSINT to find out the CVE number correspond to vulnerabilty the attacker exploited 
-but before that I need to find out the Webserver version 
+### Evidence 2 — CVE Corresponding to the Exploited Vulnerability
 
+**Observation:**
 
-Evidence 3 — Created account after an attack
+I performed OSINT research to identify the CVE corresponding to the vulnerability the attacker exploited. Before identifying the CVE, I first needed to determine the web-server version.
 
-Observation: an attacker created a user account after exploited a vulnerability and sets up the credentials
+**Wireshark filter:**
 
+### Evidence 3 — Account Created After the Attack
 
-4. Findings
+**Observation:**
 
-Finding 1 — User account name and password
+An attacker created a user account after exploiting the vulnerability and configured credentials for the account.
 
-What was observed: we observed that an attacker sets up c91oyemw & CL5vzdwLuK this username and password
+---
 
-Analysis:
+## 4. Findings
 
-   I analyse that it was important to know about the credentials he set up after creating an new user account which leads to data manipulation
+### Finding 1 — User Account Name and Password
 
+**What was observed:**
 
+I observed that the attacker set up the username `c91oyemw` and password `CL5vzdwLuK`.
 
-Finding 2 — Command Execution and tampered text file 
+**Analysis:**
 
-What was observed: I observed the date and time when an attacker execute its first command and tampered with a text file that contains the credentials of admin user of webserver and modify the credetials 
+It was important to identify the credentials the attacker configured after creating a new user account because the account was associated with subsequent data manipulation activity.
 
-Wireshark Command : ip.src == 23.158.56.196 && http.request.method == POST && http.request.uri contains NSt8bHTg.jsp
+**Evidence:**
 
-Changed Username and password - a1l4m & youarecompromised
+This finding is supported by the account-creation evidence identified during the investigation.
 
-Analysis: I analyse that the exploitation of webserver was done by webshell to compromised the the confidential data and tampered with a file and modifies it 
+---
 
-Finding 3 — attacker tried to escape but didn’t succeed, 
+### Finding 2 — Command Execution and Tampered Text File
 
-What was observed: The attacker tried to escape from the container by executing a command docker run --rm -it -v /:/host ubuntu chroot /host but he didn’t succeed 
+**What was observed:**
 
+I identified the date and time when the attacker executed the first command and tampered with a text file containing the credentials of the web-server administrator. The attacker modified the credentials contained in the file.
 
-[Explain your analysis.]
+**Analysis:**
 
-5. Indicators of Compromise (IOCs)
-Type	Indicator	Context
-IP Address	23.158.56.196	- src ip address
-URL	http://3.71.79.4:8111/plugins/NSt8bHTg/NSt8bHTg.jsp
-Filename:	NSt8bHTg.zip
+The evidence indicated that the web server was compromised through a webshell. The attacker subsequently accessed confidential data and modified a file containing administrator credentials.
 
-Only indicators identified during the investigation are included.
+**Evidence:**
 
-6. Lessons Learned
+The activity was identified by correlating HTTP POST requests from the attacker source IP with the webshell URI.
+
+---
+
+### Finding 3 — Container Escape Attempt
+
+**What was observed:**
+
+The attacker attempted to escape from the container by executing the following command:
+
+```text
+docker run --rm -it -v /:/host ubuntu chroot /host
+```
+
+The attempt was unsuccessful.
+
+**Analysis:**
+
+The command demonstrated an attempt to escape from the compromised container and access the host filesystem.
+
+---
+
+## 5. Indicators of Compromise (IOCs)
+
+| Type       | Indicator                                             | Context                             |
+| ---------- | ----------------------------------------------------- | ----------------------------------- |
+| IP Address | `23.158.56.196`                                       | Source IP address                   |
+| URL        | `http://3.71.79.4:8111/plugins/NSt8bHTg/NSt8bHTg.jsp` | Webshell URL                        |
+| Filename   | `NSt8bHTg.zip`                                        | ZIP file associated with the attack |
+
+> Only indicators identified during the investigation are included.
+
+---
+
+## 6. Lessons Learned
 
 This investigation helped reinforce the following skills:
 
-PCAP analysis using Wireshark
-Network traffic filtering
-HTTP/network protocol analysis
-Identifying suspicious network communication
-Following HTTP streams
-Extracting indicators of compromise
-Correlating network evidence to determine activity
-Documenting investigation findings
-Key Takeaways
+* PCAP analysis using Wireshark
+* Network traffic filtering
+* HTTP/network protocol analysis
+* Identifying suspicious network communication
+* Following HTTP streams
+* Extracting indicators of compromise
+* Correlating network evidence to determine activity
+* Documenting investigation findings
 
+### Key Takeaways
 
-Disclaimer:
+* Used Wireshark to analyze network traffic and identify suspicious HTTP POST requests.
+* Correlated multiple packets to identify attacker activity and files involved in the attack.
+* Practiced extracting indicators of compromise from network traffic.
+* Investigated attacker behavior including webshell activity, credential manipulation, and a container escape attempt.
+
+---
+
+## Tools Used
+
+* **Wireshark**
+* **OSINT research**
+
+---
+
+## Disclaimer
+
 This write-up is based on a retired CyberDefenders training lab and represents my own analysis and investigation notes. Challenge files and proprietary lab content are not redistributed.
+
