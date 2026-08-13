@@ -98,7 +98,7 @@ This filter was used to identify the suspicious POST request.
 
 I performed OSINT research to identify the CVE corresponding to the vulnerability the attacker exploited. Before identifying the CVE, I first needed to determine the web-server version.
 
-**Wireshark filter:**
+---
 
 ### Evidence 3 — Account Created After the Attack
 
